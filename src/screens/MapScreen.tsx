@@ -33,20 +33,44 @@ const images: Record<string, any> = {
   "prainha.jpeg": require('../assets/places/prainha.jpeg'),
 };
 
+function getInitialRegion() {
+  const points = (placesData as Place[]).filter(
+    p => p.localizacao && typeof p.localizacao.latitude === 'number' && typeof p.localizacao.longitude === 'number'
+  );
+  if (points.length === 0) {
+    return {
+      latitude: -24.32,
+      longitude: -47.00,
+      latitudeDelta: 0.8,
+      longitudeDelta: 0.8,
+    };
+  }
+  const lats = points.map(p => p.localizacao!.latitude);
+  const lngs = points.map(p => p.localizacao!.longitude);
+  const minLat = Math.min(...lats);
+  const maxLat = Math.max(...lats);
+  const minLng = Math.min(...lngs);
+  const maxLng = Math.max(...lngs);
+
+  return {
+    latitude: (minLat + maxLat) / 2,
+    longitude: (minLng + maxLng) / 2,
+    latitudeDelta: Math.max(0.08, (maxLat - minLat) * 1.5),
+    longitudeDelta: Math.max(0.08, (maxLng - minLng) * 1.5),
+  };
+}
+
 export default function MapScreen({ navigation }: any) {
-  const [region, setRegion] = useState<Region>({
-    latitude: -24.32,
-    longitude: -47.00,
-    latitudeDelta: 0.18,
-    longitudeDelta: 0.18,
-  });
+  const [region, setRegion] = useState<Region>(getInitialRegion());
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [loadingLocation, setLoadingLocation] = useState(false);
+  const [pinSize, setPinSize] = useState(28);
 
   useEffect(() => {
     getUserLocation();
+    setRegion(getInitialRegion());
   }, []);
 
   async function getUserLocation() {
@@ -103,6 +127,18 @@ export default function MapScreen({ navigation }: any) {
     });
   }
 
+  function handleRegionChangeComplete(region: Region) {
+    setRegion(region);
+    // Ajuste os valores conforme necessário para seu mapa
+    // Quanto menor o delta, maior o zoom, então aumente o tamanho do pin
+    let size = 28;
+    if (region.latitudeDelta < 0.1) size = 48;
+    else if (region.latitudeDelta < 0.2) size = 40;
+    else if (region.latitudeDelta < 0.4) size = 32;
+    else size = 24;
+    setPinSize(size);
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Mapa dos Pontos Turísticos</Text>
@@ -110,10 +146,11 @@ export default function MapScreen({ navigation }: any) {
         <MapView
           style={styles.map}
           provider={PROVIDER_GOOGLE}
+          mapType='satellite'
           region={region}
           showsUserLocation={!!userLocation}
           showsMyLocationButton
-          onRegionChangeComplete={setRegion}
+          onRegionChangeComplete={handleRegionChangeComplete}
         >
           {(placesData as Place[])
             .filter(
@@ -126,32 +163,10 @@ export default function MapScreen({ navigation }: any) {
               <Marker
                 key={place.id}
                 coordinate={place.localizacao!}
-                title={place.nome}
-                description={place.descricao}
                 onPress={() => handleMarkerPress(place)}
                 tracksViewChanges={false}
+                image={require('../assets/pin.png')}
               >
-                <View style={styles.markerIcon}>
-                  <MaterialCommunityIcons
-                    name={
-                      place.tipo === 'praia'
-                        ? 'umbrella-beach'
-                        : place.tipo === 'histórico'
-                          ? 'bank'
-                          : place.tipo === 'cachoeira'
-                            ? 'waterfall'
-                            : place.tipo === 'mirante'
-                              ? 'binoculars'
-                              : place.tipo === 'ilha'
-                                ? 'island'
-                                : place.tipo === 'ecológico'
-                                  ? 'leaf'
-                                  : 'map-marker'
-                    }
-                    size={32}
-                    color="#2a4d69"
-                  />
-                </View>
               </Marker>
             ))}
         </MapView>
@@ -236,12 +251,29 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   markerIcon: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  labelContainer: {
     backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 2,
-    borderWidth: 2,
-    borderColor: '#2a4d69',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+    marginBottom: 2,
     elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 1 },
+    maxWidth: 120,
+  },
+  labelText: {
+    color: '#2a4d69',
+    fontWeight: 'bold',
+    fontSize: 13,
+    textAlign: 'center',
   },
   locateBtn: {
     position: 'absolute',
