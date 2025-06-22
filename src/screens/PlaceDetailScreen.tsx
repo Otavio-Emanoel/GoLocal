@@ -173,7 +173,10 @@ export default function PlaceDetailScreen() {
   }
 
   return (
-    <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.background }]}>
+    <ScrollView
+      style={{ backgroundColor: theme.background, flex: 1 }}
+      contentContainerStyle={styles.container}
+    >
       {/* Modal de feedback */}
       <Modal
         visible={modalVisible}

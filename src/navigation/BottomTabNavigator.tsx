@@ -14,10 +14,22 @@ const Tab = createBottomTabNavigator();
 const ExploreStack = createNativeStackNavigator();
 
 function ExploreStackScreen() {
+  const { theme, darkMode } = useTheme();
   return (
-    <ExploreStack.Navigator>
+    <ExploreStack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: theme.background },
+        headerTitleStyle: { color: theme.text },
+        headerTintColor: theme.text,
+        headerShadowVisible: false,
+      }}
+    >
       <ExploreStack.Screen name="ExploreMain" component={ExploreScreen} options={{ headerShown: false }} />
-      <ExploreStack.Screen name="PlaceDetail" component={PlaceDetailScreen} options={{ title: 'Detalhes' }} />
+      <ExploreStack.Screen
+        name="PlaceDetail"
+        component={PlaceDetailScreen}
+        options={{ title: 'Detalhes' }}
+      />
     </ExploreStack.Navigator>
   );
 }

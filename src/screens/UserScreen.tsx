@@ -10,7 +10,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 
-const PIX_KEY = '00020126360014BR.GOV.BCB.PIX0114+5511999999995204000053039865405100.005802BR5920Otavio Emanoel6009SAO PAULO62070503***6304B14B';
+const PIX_KEY = '22546acc-5080-45a2-9c34-67f61bdea85f';
 
 const images: Record<string, any> = {
   "ruinas-abarebebe.jpeg": require('../assets/places/ruinas-abarebebe.jpeg'),
@@ -29,7 +29,7 @@ const images: Record<string, any> = {
 };
 
 export default function UserScreen() {
-  const { darkMode, setDarkMode, theme } = useTheme(); // <-- Use o contexto global
+  const { darkMode, setDarkMode, theme } = useTheme();
 
   const [name, setName] = useState<string>('Usuário');
   const [editingName, setEditingName] = useState(false);
@@ -88,7 +88,7 @@ export default function UserScreen() {
 
   function handleSendMail() {
     MailComposer.composeAsync({
-      recipients: ['otavioemanoel@gmail.com'],
+      recipients: ['otabrue6@gmail.com'],
       subject: 'Contato via GoLocal',
       body: 'Olá Otavio, gostaria de...',
     });
@@ -194,7 +194,7 @@ export default function UserScreen() {
             <MaterialCommunityIcons name="email" size={22} color={theme.btnText} />
             <Text style={[styles.actionBtnText, { color: theme.btnText }]}>Enviar e-mail</Text>
           </TouchableOpacity>
-          <Text style={[styles.contactEmail, { color: theme.text }]}>otavioemanoel@gmail.com</Text>
+          <Text style={[styles.contactEmail, { color: theme.text }]}>otabrue6@gmail.com</Text>
         </View>
       </View>
     </ScrollView>
