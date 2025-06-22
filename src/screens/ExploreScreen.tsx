@@ -4,6 +4,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import placesData from '../data/places.json';
+import { useTheme } from '../context/ThemeContext';
 
 type Place = {
   id: string;
@@ -27,7 +28,6 @@ const ORDER_OPTIONS = [
   { label: 'Z-A', value: 'za' },
 ];
 
-// Mapeamento estático das imagens conforme o JSON
 const images: Record<string, any> = {
   "ruinas-abarebebe.jpeg": require('../assets/places/ruinas-abarebebe.jpeg'),
   "barra-do-una.jpeg": require('../assets/places/barra-do-una.jpeg'),
@@ -45,6 +45,8 @@ const images: Record<string, any> = {
 };
 
 export default function ExploreScreen() {
+  const { theme, darkMode } = useTheme();
+
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('');
   const [order, setOrder] = useState<'az' | 'za'>('az');
@@ -53,7 +55,6 @@ export default function ExploreScreen() {
   const [seeLater, setSeeLater] = useState<string[]>([]);
   const [loadingSeeLater, setLoadingSeeLater] = useState<string | null>(null);
 
-  // Modal para feedback
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMsg, setModalMsg] = useState('');
   const [modalError, setModalError] = useState(false);
@@ -66,7 +67,6 @@ export default function ExploreScreen() {
     loadSeeLater();
   }, []);
 
-  // Atualiza favoritos e ver mais tarde ao voltar para a tela
   useFocusEffect(
     useCallback(() => {
       loadFavorites();
@@ -135,7 +135,6 @@ export default function ExploreScreen() {
       );
     }
 
-    // Ordenação alfabética
     filtered = filtered.slice().sort((a, b) => {
       if (order === 'az') return a.nome.localeCompare(b.nome);
       else return b.nome.localeCompare(a.nome);
@@ -147,43 +146,51 @@ export default function ExploreScreen() {
   function renderCard({ item }: { item: Place }) {
     const isSeeLater = seeLater.includes(item.id);
     return (
-      <View style={[styles.card, isSeeLater && styles.cardSeeLater]}>
+      <View style={[
+        styles.card,
+        { backgroundColor: theme.card, borderColor: isSeeLater ? '#f9a825' : 'transparent' },
+        isSeeLater && { backgroundColor: darkMode ? '#2a2a1a' : '#fffde7' }
+      ]}>
         <Image
           source={images[item.imagem]}
           style={styles.cardImage}
         />
         <View style={styles.cardContent}>
-          <Text style={styles.cardTitle}>{item.nome}</Text>
-          <Text style={styles.cardDesc} numberOfLines={2}>{item.descricao}</Text>
+          <Text style={[styles.cardTitle, { color: theme.text }]}>{item.nome}</Text>
+          <Text style={[styles.cardDesc, { color: theme.textAlt }]} numberOfLines={2}>{item.descricao}</Text>
           <View style={styles.cardActions}>
             <TouchableOpacity
-              style={styles.moreBtn}
+              style={[styles.moreBtn, { backgroundColor: theme.btn }]}
               // @ts-ignore
               onPress={() => navigation.navigate('PlaceDetail', { id: item.id })}
             >
-              <Text style={styles.moreBtnText}>Saiba mais</Text>
+              <Text style={[styles.moreBtnText, { color: theme.btnText }]}>Saiba mais</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[
                 styles.seeLaterBtn,
-                isSeeLater && styles.seeLaterBtnActive
+                { backgroundColor: theme.card, borderColor: '#f9a825' },
+                isSeeLater && { backgroundColor: darkMode ? '#2a2a1a' : '#fffbe6' }
               ]}
               onPress={() => toggleSeeLater(item.id)}
               disabled={loadingSeeLater === item.id}
             >
               {loadingSeeLater === item.id ? (
-                <ActivityIndicator size={20} color={isSeeLater ? "#f9a825" : "#2a4d69"} />
+                <ActivityIndicator size={20} color={isSeeLater ? "#f9a825" : theme.btn} />
               ) : (
                 <MaterialCommunityIcons
                   name={isSeeLater ? 'bookmark-check' : 'bookmark-plus-outline'}
                   size={26}
-                  color={isSeeLater ? "#f9a825" : "#2a4d69"}
+                  color={isSeeLater ? "#f9a825" : theme.btn}
                 />
               )}
             </TouchableOpacity>
           </View>
           {isSeeLater && (
-            <View style={styles.seeLaterTag}>
+            <View style={[
+              styles.seeLaterTag,
+              { backgroundColor: darkMode ? '#2a2a1a' : '#fffbe6' }
+            ]}>
               <MaterialCommunityIcons name="clock-outline" size={16} color="#f9a825" />
               <Text style={styles.seeLaterTagText}>Ver mais tarde</Text>
             </View>
@@ -194,7 +201,7 @@ export default function ExploreScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       {/* Modal de feedback */}
       <Modal
         visible={modalVisible}
@@ -214,18 +221,26 @@ export default function ExploreScreen() {
               {modalMsg}
             </Text>
             <TouchableOpacity
-              style={styles.modalBtn}
+              style={[styles.modalBtn, { backgroundColor: theme.btn }]}
               onPress={() => setModalVisible(false)}
             >
-              <Text style={styles.modalBtnText}>OK</Text>
+              <Text style={[styles.modalBtnText, { color: theme.btnText }]}>OK</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
       {/* Barra de pesquisa */}
       <TextInput
-        style={styles.search}
+        style={[
+          styles.search,
+          {
+            backgroundColor: theme.card,
+            color: theme.text,
+            borderColor: theme.cardAlt,
+          }
+        ]}
         placeholder="Buscar ponto turístico..."
+        placeholderTextColor={theme.placeholder}
         value={search}
         onChangeText={setSearch}
       />
@@ -234,10 +249,18 @@ export default function ExploreScreen() {
         {FILTERS.map(f => (
           <TouchableOpacity
             key={f.value}
-            style={[styles.filterBtn, filter === f.value && styles.filterBtnActive]}
+            style={[
+              styles.filterBtn,
+              { backgroundColor: theme.cardAlt },
+              filter === f.value && { backgroundColor: theme.btn }
+            ]}
             onPress={() => setFilter(f.value)}
           >
-            <Text style={[styles.filterText, filter === f.value && styles.filterTextActive]}>
+            <Text style={[
+              styles.filterText,
+              { color: theme.btn },
+              filter === f.value && { color: theme.btnText }
+            ]}>
               {f.label}
             </Text>
           </TouchableOpacity>
@@ -249,18 +272,20 @@ export default function ExploreScreen() {
               key={opt.value}
               style={[
                 styles.orderBtn,
-                order === opt.value && styles.orderBtnActive
+                { backgroundColor: theme.cardAlt },
+                order === opt.value && { backgroundColor: theme.btn }
               ]}
               onPress={() => setOrder(opt.value as 'az' | 'za')}
             >
               <MaterialCommunityIcons
                 name={opt.value === 'az' ? 'sort-alphabetical-ascending' : 'sort-alphabetical-descending'}
                 size={18}
-                color={order === opt.value ? '#fff' : '#2a4d69'}
+                color={order === opt.value ? theme.btnText : theme.btn}
               />
               <Text style={[
                 styles.orderBtnText,
-                order === opt.value && styles.orderBtnTextActive
+                { color: theme.btn },
+                order === opt.value && { color: theme.btnText }
               ]}>
                 {opt.label}
               </Text>
@@ -281,16 +306,14 @@ export default function ExploreScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8fafc', padding: 12 },
+  container: { flex: 1, padding: 12 },
   search: {
-    backgroundColor: '#fff',
     borderRadius: 10,
     padding: 10,
     marginTop: 30,
     marginBottom: 10,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: '#e0e7ef',
   },
   filters: {
     flexDirection: 'row',
@@ -300,22 +323,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   filterBtn: {
-    backgroundColor: '#e0e7ef',
     borderRadius: 20,
     paddingHorizontal: 14,
     paddingVertical: 6,
     marginRight: 6,
     marginBottom: 6,
   },
-  filterBtnActive: {
-    backgroundColor: '#2a4d69',
-  },
   filterText: {
-    color: '#2a4d69',
     fontWeight: '600',
-  },
-  filterTextActive: {
-    color: '#fff',
   },
   orderContainer: {
     flexDirection: 'row',
@@ -325,7 +340,6 @@ const styles = StyleSheet.create({
   orderBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#e0e7ef',
     borderRadius: 20,
     paddingHorizontal: 10,
     paddingVertical: 6,
@@ -333,19 +347,11 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     gap: 4,
   },
-  orderBtnActive: {
-    backgroundColor: '#2a4d69',
-  },
   orderBtnText: {
-    color: '#2a4d69',
     fontWeight: '600',
     marginLeft: 2,
   },
-  orderBtnTextActive: {
-    color: '#fff',
-  },
   card: {
-    backgroundColor: '#fff',
     borderRadius: 14,
     marginBottom: 16,
     flexDirection: 'row',
@@ -355,11 +361,9 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
     borderWidth: 2,
-    borderColor: 'transparent',
   },
   cardSeeLater: {
     borderColor: '#f9a825',
-    backgroundColor: '#fffde7',
   },
   cardImage: {
     width: 110,
@@ -375,12 +379,10 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#2a4d69',
     marginBottom: 4,
   },
   cardDesc: {
     fontSize: 14,
-    color: '#4f6d7a',
     marginBottom: 8,
   },
   cardActions: {
@@ -391,33 +393,25 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   moreBtn: {
-    backgroundColor: '#2a4d69',
     borderRadius: 8,
     paddingHorizontal: 14,
     paddingVertical: 6,
     marginRight: 6,
   },
   moreBtnText: {
-    color: '#fff',
     fontWeight: 'bold',
     fontSize: 14,
   },
   seeLaterBtn: {
-    backgroundColor: '#fff',
     borderRadius: 8,
     padding: 4,
     borderWidth: 2,
-    borderColor: '#f9a825',
     marginRight: 6,
-  },
-  seeLaterBtnActive: {
-    backgroundColor: '#fffbe6',
   },
   seeLaterTag: {
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    backgroundColor: '#fffbe6',
     borderRadius: 8,
     paddingHorizontal: 8,
     paddingVertical: 2,
@@ -460,14 +454,12 @@ const styles = StyleSheet.create({
     color: '#d32f2f',
   },
   modalBtn: {
-    backgroundColor: '#2a4d69',
     borderRadius: 8,
     paddingHorizontal: 24,
     paddingVertical: 8,
     marginTop: 4,
   },
   modalBtnText: {
-    color: '#fff',
     fontWeight: 'bold',
     fontSize: 15,
     letterSpacing: 0.5,

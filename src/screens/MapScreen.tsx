@@ -4,6 +4,7 @@ import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import placesData from '../data/places.json';
+import { useTheme } from '../context/ThemeContext';
 
 const { width, height } = Dimensions.get('window');
 
@@ -61,6 +62,7 @@ function getInitialRegion() {
 }
 
 export default function MapScreen({ navigation }: any) {
+  const { theme, darkMode } = useTheme();
   const [region, setRegion] = useState<Region>(getInitialRegion());
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -140,9 +142,9 @@ export default function MapScreen({ navigation }: any) {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Mapa dos Pontos Turísticos</Text>
-      <View style={styles.mapWrapper}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <Text style={[styles.title, { color: theme.text }]}>Mapa dos Pontos Turísticos</Text>
+      <View style={[styles.mapWrapper, { backgroundColor: theme.cardAlt }]}>
         <MapView
           style={styles.map}
           provider={PROVIDER_GOOGLE}
@@ -166,18 +168,34 @@ export default function MapScreen({ navigation }: any) {
                 onPress={() => handleMarkerPress(place)}
                 tracksViewChanges={false}
                 image={require('../assets/pin.png')}
-              >
-              </Marker>
+              />
             ))}
         </MapView>
         {/* Botão para centralizar no usuário */}
-        <TouchableOpacity style={styles.locateBtn} onPress={getUserLocation}>
+        <TouchableOpacity style={[styles.locateBtn, { backgroundColor: theme.card }]} onPress={getUserLocation}>
           {loadingLocation ? (
-            <ActivityIndicator color="#2a4d69" />
+            <ActivityIndicator color={theme.text} />
           ) : (
-            <MaterialCommunityIcons name="crosshairs-gps" size={26} color="#2a4d69" />
+            <MaterialCommunityIcons name="crosshairs-gps" size={26} color={theme.text} />
           )}
         </TouchableOpacity>
+      </View>
+
+      {/* Título e instruções */}
+      <View style={styles.infoBlock}>
+        <Text style={[styles.infoTitle, { color: theme.text }]}>Pontos turísticos</Text>
+        <View style={[styles.infoInstructionContainer, { backgroundColor: theme.card }]}>
+          <Text style={[styles.infoInstruction, { color: theme.text }]}>
+            Clique em um pin para ver mais detalhes
+          </Text>
+        </View>
+      </View>
+
+      {/* Notas do dev */}
+      <View style={[styles.devNoteBlock, { backgroundColor: theme.cardAlt }]}>
+        <Text style={[styles.devNoteText, { color: theme.text }]}>
+          Nota do desenvolvedor: A localização exata dos pontos turísticos pode não ser precisa. O aplicativo está em fase de teste.
+        </Text>
       </View>
 
       {/* Modal do ponto */}
@@ -188,35 +206,35 @@ export default function MapScreen({ navigation }: any) {
         onRequestClose={handleCloseModal}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalBox}>
+          <View style={[styles.modalBox, { backgroundColor: theme.card }]}>
             {selectedPlace && (
               <>
                 <Image
                   source={images[selectedPlace.imagem]}
                   style={styles.modalImage}
                 />
-                <Text style={styles.modalTitle}>{selectedPlace.nome}</Text>
-                <Text style={styles.modalDesc} numberOfLines={3}>
+                <Text style={[styles.modalTitle, { color: theme.text }]}>{selectedPlace.nome}</Text>
+                <Text style={[styles.modalDesc, { color: theme.textAlt }]} numberOfLines={3}>
                   {selectedPlace.descricao}
                 </Text>
                 <View style={styles.modalActions}>
                   <TouchableOpacity
-                    style={styles.modalBtn}
+                    style={[styles.modalBtn, { backgroundColor: theme.btn }]}
                     onPress={handleSeeMore}
                   >
-                    <MaterialCommunityIcons name="information-outline" size={20} color="#fff" />
-                    <Text style={styles.modalBtnText}>Ver mais</Text>
+                    <MaterialCommunityIcons name="information-outline" size={20} color={theme.btnText} />
+                    <Text style={[styles.modalBtnText, { color: theme.btnText }]}>Ver mais</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={[styles.modalBtn, styles.modalBtnMap]}
+                    style={[styles.modalBtn, styles.modalBtnMap, { backgroundColor: '#f9a825' }]}
                     onPress={() => openGoogleMaps(selectedPlace)}
                   >
                     <MaterialCommunityIcons name="map-marker" size={20} color="#fff" />
-                    <Text style={styles.modalBtnText}>Ver no mapa</Text>
+                    <Text style={styles.modalBtnText}>Ver no Maps</Text>
                   </TouchableOpacity>
                 </View>
-                <TouchableOpacity style={styles.closeBtn} onPress={handleCloseModal}>
-                  <MaterialCommunityIcons name="close" size={28} color="#2a4d69" />
+                <TouchableOpacity style={[styles.closeBtn, { backgroundColor: theme.cardAlt }]} onPress={handleCloseModal}>
+                  <MaterialCommunityIcons name="close" size={28} color={theme.text} />
                 </TouchableOpacity>
               </>
             )}
@@ -228,11 +246,10 @@ export default function MapScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8fafc', paddingTop: 18, marginTop: 18 },
+  container: { flex: 1, paddingTop: 18, marginTop: 18 },
   title: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#2a4d69',
     textAlign: 'center',
     marginBottom: 10,
   },
@@ -243,7 +260,6 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     overflow: 'hidden',
     marginBottom: 18,
-    backgroundColor: '#e0e7ef',
     elevation: 3,
   },
   map: {
@@ -279,7 +295,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 18,
     right: 18,
-    backgroundColor: '#fff',
     borderRadius: 30,
     padding: 12,
     elevation: 4,
@@ -295,7 +310,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalBox: {
-    backgroundColor: '#fff',
     borderRadius: 18,
     padding: 18,
     alignItems: 'center',
@@ -316,13 +330,11 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#2a4d69',
     marginBottom: 4,
     textAlign: 'center',
   },
   modalDesc: {
     fontSize: 15,
-    color: '#22343c',
     marginBottom: 14,
     textAlign: 'center',
   },
@@ -334,7 +346,6 @@ const styles = StyleSheet.create({
   modalBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2a4d69',
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -345,7 +356,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9a825',
   },
   modalBtnText: {
-    color: '#fff',
     fontWeight: 'bold',
     fontSize: 15,
   },
@@ -353,8 +363,52 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 8,
     right: 8,
-    backgroundColor: '#e0e7ef',
     borderRadius: 16,
     padding: 2,
+  },
+  infoBlock: {
+    alignItems: 'center',
+    marginBottom: 8,
+    marginTop: 2,
+  },
+  infoTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 2,
+    textAlign: 'center',
+  },
+  infoInstructionContainer: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.10,
+    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 1 },
+    marginTop: 2,
+    marginBottom: 2,
+    alignSelf: 'center',
+  },
+  infoInstruction: {
+    fontSize: 13,
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+
+  // Para o bloco de nota do desenvolvedor
+  devNoteBlock: {
+    padding: 12,
+    marginTop: 12,
+    backgroundColor: '#e0e7ef', // Troque por theme.cardAlt no componente
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  devNoteText: {
+    fontSize: 13,
+    color: '#2a4d69', // Troque por theme.text no componente
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
 });

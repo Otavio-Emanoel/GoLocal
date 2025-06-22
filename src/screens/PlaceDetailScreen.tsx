@@ -1,10 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, Linking, ActivityIndicator, Modal } from 'react-native';
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, Linking, ActivityIndicator, Modal, TextInput } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import Swiper from 'react-native-swiper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import placesData from '../data/places.json';
+import { useTheme } from '../context/ThemeContext';
+import Markdown from 'react-native-markdown-display';
+
+// Gemini API
+const GEMINI_API_KEY = 'SUA_CHAVE_GEMINI_AQUI'; // Troque pela sua chave Gemini
+
+async function askGemini(question: string, context: string) {
+  const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + GEMINI_API_KEY;
+  const body = {
+    contents: [
+      { parts: [{ text: `Contexto: ${context}\nPergunta: ${question}` }] }
+    ]
+  };
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  const data = await response.json();
+  return data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Não foi possível obter resposta.';
+}
 
 // Mapeamento estático das imagens (adicione todas que usar no JSON)
 const images: Record<string, any> = {
@@ -30,7 +51,7 @@ type RootStackParamList = {
 type Place = {
   id: string;
   nome: string;
-  imagens?: string[]; // array de nomes de imagens
+  imagens?: string[];
   imagem?: string;
   descricao: string;
   tipo: string;
@@ -44,18 +65,23 @@ type Place = {
 };
 
 export default function PlaceDetailScreen() {
+  const { theme, darkMode } = useTheme();
   const route = useRoute<RouteProp<RootStackParamList, 'PlaceDetail'>>();
   const { id } = route.params;
   const place = (placesData as Place[]).find(p => p.id === id);
 
-  // Estado para "ver mais tarde"
   const [saved, setSaved] = useState(false);
   const [loadingSave, setLoadingSave] = useState(true);
 
-  // Estado do modal
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMsg, setModalMsg] = useState('');
   const [modalError, setModalError] = useState(false);
+
+  // Gemini modal
+  const [geminiModal, setGeminiModal] = useState(false);
+  const [geminiQuestion, setGeminiQuestion] = useState('');
+  const [geminiAnswer, setGeminiAnswer] = useState('');
+  const [geminiLoading, setGeminiLoading] = useState(false);
 
   useEffect(() => {
     checkIfSaved();
@@ -68,9 +94,7 @@ export default function PlaceDetailScreen() {
         const arr = JSON.parse(savedList) as string[];
         setSaved(arr.includes(id));
       }
-    } catch (e) {
-      // erro silencioso
-    }
+    } catch (e) { }
     setLoadingSave(false);
   }
 
@@ -103,13 +127,12 @@ export default function PlaceDetailScreen() {
 
   if (!place) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text>Ponto não encontrado.</Text>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.background }}>
+        <Text style={{ color: theme.text }}>Ponto não encontrado.</Text>
       </View>
     );
   }
 
-  // Para compatibilidade com JSON antigo
   const imagens = place.imagens && place.imagens.length > 0
     ? place.imagens
     : place.imagem
@@ -128,8 +151,29 @@ export default function PlaceDetailScreen() {
     }
   };
 
+  async function handleAskGemini() {
+    if (!geminiQuestion.trim() || !place) return;
+    setGeminiLoading(true);
+    setGeminiAnswer('');
+    try {
+      const context = `${place.nome}\n${place.descricao}\nPeruibe-SP\n${place.curiosidades || ''}`;
+      const answer = await askGemini(geminiQuestion, context);
+      setGeminiAnswer(answer);
+    } catch (e) {
+      setGeminiAnswer('Erro ao conectar com a IA.');
+    }
+    setGeminiLoading(false);
+  }
+
+  // Remove *** e outros artefatos do Gemini e deixa Markdown mais limpo
+  function formatGeminiAnswer(answer: string) {
+    let clean = answer.replace(/\*{3,}/g, '');
+    // Outras limpezas podem ser feitas aqui se necessário
+    return clean.trim();
+  }
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.background }]}>
       {/* Modal de feedback */}
       <Modal
         visible={modalVisible}
@@ -137,22 +181,103 @@ export default function PlaceDetailScreen() {
         animationType="fade"
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalBox, modalError && styles.modalBoxError]}>
+        <View style={[
+          styles.modalOverlay,
+          darkMode && { backgroundColor: 'rgba(0,0,0,0.7)' }
+        ]}>
+          <View style={[
+            styles.modalBox,
+            modalError && styles.modalBoxError,
+            { backgroundColor: theme.card }
+          ]}>
             <MaterialCommunityIcons
               name={modalError ? "alert-circle-outline" : "check-circle-outline"}
               size={40}
               color={modalError ? "#d32f2f" : "#2e7d32"}
               style={{ marginBottom: 8 }}
             />
-            <Text style={[styles.modalMsg, modalError && styles.modalMsgError]}>
+            <Text style={[
+              styles.modalMsg,
+              modalError && styles.modalMsgError,
+              { color: modalError ? "#d32f2f" : theme.text }
+            ]}>
               {modalMsg}
             </Text>
             <TouchableOpacity
-              style={styles.modalBtn}
+              style={[styles.modalBtn, { backgroundColor: theme.btn }]}
               onPress={() => setModalVisible(false)}
             >
-              <Text style={styles.modalBtnText}>OK</Text>
+              <Text style={[styles.modalBtnText, { color: theme.btnText }]}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal Gemini */}
+      <Modal
+        visible={geminiModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setGeminiModal(false)}
+      >
+        <View style={[
+          styles.modalOverlay,
+          darkMode && { backgroundColor: 'rgba(0,0,0,0.7)' }
+        ]}>
+          <View style={[styles.geminiModalBox, { backgroundColor: theme.card }]}>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>Pergunte algo sobre este local</Text>
+            <TextInput
+              style={[
+                styles.geminiInput,
+                {
+                  color: theme.text,
+                  backgroundColor: theme.cardAlt,
+                  borderColor: theme.border,
+                }
+              ]}
+              placeholder="Digite sua pergunta..."
+              placeholderTextColor={theme.textAlt}
+              value={geminiQuestion}
+              onChangeText={setGeminiQuestion}
+              editable={!geminiLoading}
+              onSubmitEditing={handleAskGemini}
+              returnKeyType="send"
+            />
+            <TouchableOpacity
+              style={[styles.geminiBtn, { backgroundColor: theme.btn }]}
+              onPress={handleAskGemini}
+              disabled={geminiLoading}
+            >
+              {geminiLoading ? (
+                <ActivityIndicator color={theme.btnText} />
+              ) : (
+                <MaterialCommunityIcons name="robot" size={22} color={theme.btnText} />
+              )}
+              <Text style={[styles.geminiBtnText, { color: theme.btnText }]}>Perguntar</Text>
+            </TouchableOpacity>
+            <ScrollView style={{ maxHeight: 220, width: '100%' }}>
+              {geminiAnswer ? (
+                <View style={[
+                  styles.geminiAnswerBox,
+                  { backgroundColor: theme.cardAlt }
+                ]}>
+                  <Markdown
+                    style={{
+                      body: { color: theme.text, fontSize: 15, backgroundColor: theme.cardAlt },
+                      paragraph: { color: theme.text },
+                      strong: { color: theme.text },
+                      em: { color: theme.text },
+                      code_inline: { color: theme.text, backgroundColor: darkMode ? '#23262f' : '#e0e7ef' },
+                      code_block: { color: theme.text, backgroundColor: darkMode ? '#23262f' : '#e0e7ef' },
+                    }}
+                  >
+                    {formatGeminiAnswer(geminiAnswer)}
+                  </Markdown>
+                </View>
+              ) : null}
+            </ScrollView>
+            <TouchableOpacity style={styles.closeBtn} onPress={() => setGeminiModal(false)}>
+              <MaterialCommunityIcons name="close" size={28} color={theme.text} />
             </TouchableOpacity>
           </View>
         </View>
@@ -163,8 +288,8 @@ export default function PlaceDetailScreen() {
           style={styles.swiper}
           height={220}
           showsPagination={imagens.length > 1}
-          dotColor="#e0e7ef"
-          activeDotColor="#2a4d69"
+          dotColor={theme.cardAlt}
+          activeDotColor={theme.btn}
         >
           {imagens.map((img, idx) => (
             <Image
@@ -176,38 +301,38 @@ export default function PlaceDetailScreen() {
           ))}
         </Swiper>
       </View>
-      <Text style={styles.title}>{place.nome}</Text>
-      <Text style={styles.type}>
+      <Text style={[styles.title, { color: theme.text }]}>{place.nome}</Text>
+      <Text style={[styles.type, { color: theme.textAlt }]}>
         {place.tipo.charAt(0).toUpperCase() + place.tipo.slice(1)}
         {' • '}
         {place.gratuito ? 'Gratuito' : place.taxa ? `Pago (${place.taxa})` : 'Pago'}
       </Text>
-      <Text style={styles.desc}>{place.descricao}</Text>
+      <Text style={[styles.desc, { color: theme.textAlt }]}>{place.descricao}</Text>
 
       {/* Informações gerais */}
-      <View style={styles.infoBox}>
+      <View style={[styles.infoBox, { backgroundColor: theme.cardAlt }]}>
         {place.horario && (
-          <Text style={styles.infoLine}>
-            <MaterialCommunityIcons name="clock-outline" size={18} color="#2a4d69" />{' '}
-            <Text style={styles.infoLabel}>Horário:</Text> {place.horario}
+          <Text style={[styles.infoLine, { color: theme.text }]}>
+            <MaterialCommunityIcons name="clock-outline" size={18} color={theme.btn} />{' '}
+            <Text style={[styles.infoLabel, { color: theme.text }]}>Horário:</Text> {place.horario}
           </Text>
         )}
         {place.taxa && (
-          <Text style={styles.infoLine}>
-            <MaterialCommunityIcons name="cash" size={18} color="#2a4d69" />{' '}
-            <Text style={styles.infoLabel}>Taxa de entrada:</Text> {place.taxa}
+          <Text style={[styles.infoLine, { color: theme.text }]}>
+            <MaterialCommunityIcons name="cash" size={18} color={theme.btn} />{' '}
+            <Text style={[styles.infoLabel, { color: theme.text }]}>Taxa de entrada:</Text> {place.taxa}
           </Text>
         )}
         {place.dificuldade && (
-          <Text style={styles.infoLine}>
-            <MaterialCommunityIcons name="walk" size={18} color="#2a4d69" />{' '}
-            <Text style={styles.infoLabel}>Dificuldade:</Text> {place.dificuldade}
+          <Text style={[styles.infoLine, { color: theme.text }]}>
+            <MaterialCommunityIcons name="walk" size={18} color={theme.btn} />{' '}
+            <Text style={[styles.infoLabel, { color: theme.text }]}>Dificuldade:</Text> {place.dificuldade}
           </Text>
         )}
         {place.dicas && (
-          <Text style={styles.infoLine}>
-            <MaterialCommunityIcons name="lightbulb-on-outline" size={18} color="#2a4d69" />{' '}
-            <Text style={styles.infoLabel}>Dica:</Text> {place.dicas}
+          <Text style={[styles.infoLine, { color: theme.text }]}>
+            <MaterialCommunityIcons name="lightbulb-on-outline" size={18} color={theme.btn} />{' '}
+            <Text style={[styles.infoLabel, { color: theme.text }]}>Dica:</Text> {place.dicas}
           </Text>
         )}
       </View>
@@ -215,27 +340,25 @@ export default function PlaceDetailScreen() {
       {/* Botões de ação */}
       <View style={styles.actionsGrid}>
         <View style={styles.actionsRow}>
-          <TouchableOpacity style={[styles.actionBtn, styles.actionBtnPrimary]} onPress={openMaps}>
-            <MaterialCommunityIcons name="map-marker" size={22} color="#fff" />
-            <Text style={styles.actionBtnText}>Ver no Maps</Text>
+          <TouchableOpacity style={[styles.actionBtn, { backgroundColor: theme.btn }]} onPress={openMaps}>
+            <MaterialCommunityIcons name="map-marker" size={22} color={theme.btnText} />
+            <Text style={[styles.actionBtnText, { color: theme.btnText }]}>Ver no Maps</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.actionBtn, styles.actionBtnSecondary]}
-            onPress={() => {
-              setModalMsg('Como chegar será implementado em breve!');
-              setModalError(false);
-              setModalVisible(true);
-            }}
+            style={[styles.actionBtn, { backgroundColor: theme.card, borderWidth: 2, borderColor: theme.btn }]}
+            onPress={() => setGeminiModal(true)}
           >
-            <MaterialCommunityIcons name="navigation" size={22} color="#2a4d69" />
-            <Text style={[styles.actionBtnText, styles.actionBtnTextSecondary]}>Como chegar</Text>
+            <MaterialCommunityIcons name="robot" size={22} color={theme.btn} />
+            <Text style={[styles.actionBtnText, { color: theme.btn }]}>Saber mais</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.actionsRow}>
           <TouchableOpacity
             style={[
               styles.actionBtn,
-              saved ? styles.actionBtnSaved : styles.actionBtnTertiary,
+              saved
+                ? { backgroundColor: '#f9a825' }
+                : { backgroundColor: theme.cardAlt, borderWidth: 2, borderColor: '#f9a825' },
               { flex: 1, opacity: loadingSave ? 0.6 : 1 }
             ]}
             onPress={handleToggleSave}
@@ -252,7 +375,7 @@ export default function PlaceDetailScreen() {
             )}
             <Text style={[
               styles.actionBtnText,
-              saved ? {} : styles.actionBtnTextTertiary
+              saved ? { color: "#fff" } : { color: "#f9a825" }
             ]}>
               {saved ? "Salvo! (remover)" : "Ver mais tarde"}
             </Text>
@@ -262,9 +385,9 @@ export default function PlaceDetailScreen() {
 
       {/* Curiosidades */}
       {place.curiosidades && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Curiosidades</Text>
-          <Text style={styles.sectionText}>{place.curiosidades}</Text>
+        <View style={[styles.section, { backgroundColor: theme.card }]}>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>Curiosidades</Text>
+          <Text style={[styles.sectionText, { color: theme.textAlt }]}>{place.curiosidades}</Text>
         </View>
       )}
     </ScrollView>
@@ -275,7 +398,6 @@ const styles = StyleSheet.create({
   container: {
     padding: 18,
     alignItems: 'center',
-    backgroundColor: '#f8fafc',
   },
   carouselContainer: {
     width: '100%',
@@ -294,37 +416,31 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: 'bold',
-    color: '#2a4d69',
     marginBottom: 6,
     textAlign: 'center',
   },
   type: {
     fontSize: 16,
-    color: '#4f6d7a',
     marginBottom: 12,
     textAlign: 'center',
   },
   desc: {
     fontSize: 16,
-    color: '#22343c',
     textAlign: 'justify',
     marginBottom: 16,
   },
   infoBox: {
     width: '100%',
-    backgroundColor: '#e0e7ef',
     borderRadius: 12,
     padding: 12,
     marginBottom: 18,
   },
   infoLine: {
     fontSize: 15,
-    color: '#2a4d69',
     marginBottom: 6,
   },
   infoLabel: {
     fontWeight: 'bold',
-    color: '#2a4d69',
   },
   actionsGrid: {
     width: '100%',
@@ -352,38 +468,14 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
   },
-  actionBtnPrimary: {
-    backgroundColor: '#2a4d69',
-  },
-  actionBtnSecondary: {
-    backgroundColor: '#fff',
-    borderWidth: 2,
-    borderColor: '#2a4d69',
-  },
-  actionBtnTertiary: {
-    backgroundColor: '#fffbe6',
-    borderWidth: 2,
-    borderColor: '#f9a825',
-  },
-  actionBtnSaved: {
-    backgroundColor: '#f9a825',
-  },
   actionBtnText: {
     fontWeight: 'bold',
     fontSize: 15,
-    color: '#fff',
     letterSpacing: 0.5,
-  },
-  actionBtnTextSecondary: {
-    color: '#2a4d69',
-  },
-  actionBtnTextTertiary: {
-    color: '#f9a825',
   },
   section: {
     width: '100%',
     marginBottom: 18,
-    backgroundColor: '#fff',
     borderRadius: 12,
     padding: 12,
     elevation: 1,
@@ -391,12 +483,10 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 17,
     fontWeight: 'bold',
-    color: '#2a4d69',
     marginBottom: 4,
   },
   sectionText: {
     fontSize: 15,
-    color: '#22343c',
   },
   // Modal styles
   modalOverlay: {
@@ -406,7 +496,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalBox: {
-    backgroundColor: '#fff',
     borderRadius: 16,
     padding: 28,
     alignItems: 'center',
@@ -420,7 +509,6 @@ const styles = StyleSheet.create({
   },
   modalMsg: {
     fontSize: 16,
-    color: '#2e7d32',
     textAlign: 'center',
     marginBottom: 12,
     fontWeight: 'bold',
@@ -429,16 +517,63 @@ const styles = StyleSheet.create({
     color: '#d32f2f',
   },
   modalBtn: {
-    backgroundColor: '#2a4d69',
     borderRadius: 8,
     paddingHorizontal: 24,
     paddingVertical: 8,
     marginTop: 4,
   },
   modalBtnText: {
-    color: '#fff',
     fontWeight: 'bold',
     fontSize: 15,
     letterSpacing: 0.5,
+  },
+  // Gemini modal
+  geminiModalBox: {
+    borderRadius: 16,
+    padding: 24,
+    alignItems: 'center',
+    minWidth: 260,
+    maxWidth: 340,
+    elevation: 4,
+    position: 'relative',
+  },
+  geminiInput: {
+    width: '100%',
+    borderRadius: 8,
+    padding: 10,
+    fontSize: 15,
+    borderWidth: 1.5,
+    marginBottom: 10,
+    marginTop: 8,
+  },
+  geminiBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 8,
+    paddingHorizontal: 18,
+    paddingVertical: 8,
+    marginBottom: 10,
+    gap: 8,
+  },
+  geminiBtnText: {
+    fontWeight: 'bold',
+    fontSize: 15,
+  },
+  geminiAnswerBox: {
+    width: '100%',
+    marginTop: 8,
+    borderRadius: 8,
+    padding: 10,
+  },
+  geminiAnswer: {
+    fontSize: 15,
+  },
+  closeBtn: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: 'transparent',
+    borderRadius: 16,
+    padding: 2,
   },
 });

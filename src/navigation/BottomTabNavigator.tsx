@@ -8,6 +8,7 @@ import HomeScreen from '../screens/HomeScreen';
 import ExploreScreen from '../screens/ExploreScreen';
 import MapScreen from '../screens/MapScreen';
 import UserScreen from '../screens/UserScreen';
+import { useTheme } from '../context/ThemeContext';
 
 const Tab = createBottomTabNavigator();
 const ExploreStack = createNativeStackNavigator();
@@ -22,11 +23,23 @@ function ExploreStackScreen() {
 }
 
 export default function BottomTabNavigator() {
+  const { theme, darkMode } = useTheme();
+
   return (
     <Tab.Navigator
       initialRouteName="Home"
       screenOptions={{
         headerShown: false,
+        tabBarActiveTintColor: theme.btn,
+        tabBarInactiveTintColor: darkMode ? '#aaa' : '#888',
+        tabBarStyle: {
+          backgroundColor: theme.card,
+          borderTopColor: theme.cardAlt,
+          borderTopWidth: 1,
+        },
+        tabBarLabelStyle: {
+          fontWeight: 'bold',
+        },
       }}
     >
       <Tab.Screen
@@ -50,9 +63,7 @@ export default function BottomTabNavigator() {
         }}
         listeners={({ navigation }) => ({
           tabPress: e => {
-            // Previne o comportamento padrão
             e.preventDefault();
-            // Reseta a pilha do Explore para a tela principal
             navigation.navigate('Explore', {
               screen: 'ExploreMain',
             });
