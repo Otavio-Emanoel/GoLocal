@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Animated, StyleSheet, Easing, Dimensions } from 'react-native';
+import { View, Animated, StyleSheet, Easing, Dimensions, Image } from 'react-native';
 import { StackActions, useNavigation } from '@react-navigation/native';
 import Svg, { Path, Circle, Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
 
@@ -105,27 +105,10 @@ export default function SplashScreenCustom() {
   return (
     <Animated.View style={[styles.splashContainer, { opacity: fadeAnim }]}>
       <View style={styles.logoTextContainer}>
-        <Svg width={110} height={110} viewBox="0 0 100 100">
-          <Path
-            d="M50 10
-               C75 10, 90 35, 50 90
-               C10 35, 25 10, 50 10
-               Z"
-            fill="#6ee7e7"
-            stroke="#22343c"
-            strokeWidth="5"
-          />
-          <Circle cx="38" cy="38" r="5" fill="#22343c" />
-          <Circle cx="62" cy="38" r="5" fill="#22343c" />
-          <Path
-            d="M43 55 Q50 58 57 55"
-            stroke="#22343c"
-            strokeWidth="3"
-            fill="none"
-            strokeLinecap="round"
-          />
-        </Svg>
-        <Animated.Text style={styles.logoText}>GoLocal</Animated.Text>
+        <Image
+          source={require('../assets/icon.png')}
+          style={styles.logoImage}
+        />
       </View>
       <View style={{ height: 40 }} />
       <View style={styles.barContainer}>
@@ -189,6 +172,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  logoImage: {
+    width: 210,
+    height: 210,
+    resizeMode: 'contain',
+    marginBottom: 10,
+    borderRadius: 55,
+    borderWidth: 0.1,
+    borderColor: '#2a4d69',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+},
   logoText: {
     fontSize: 38,
     fontWeight: 'bold',
