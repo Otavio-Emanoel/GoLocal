@@ -1,6 +1,8 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import PlaceDetailScreen from '../screens/PlaceDetailScreen';
 
 import HomeScreen from '../screens/HomeScreen';
 import ExploreScreen from '../screens/ExploreScreen';
@@ -8,6 +10,16 @@ import MapScreen from '../screens/MapScreen';
 import UserScreen from '../screens/UserScreen';
 
 const Tab = createBottomTabNavigator();
+const ExploreStack = createNativeStackNavigator();
+
+function ExploreStackScreen() {
+  return (
+    <ExploreStack.Navigator>
+      <ExploreStack.Screen name="ExploreMain" component={ExploreScreen} options={{ headerShown: false }} />
+      <ExploreStack.Screen name="PlaceDetail" component={PlaceDetailScreen} options={{ title: 'Detalhes' }} />
+    </ExploreStack.Navigator>
+  );
+}
 
 export default function BottomTabNavigator() {
   return (
@@ -29,7 +41,7 @@ export default function BottomTabNavigator() {
       />
       <Tab.Screen
         name="Explore"
-        component={ExploreScreen}
+        component={ExploreStackScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="magnify" color={color} size={size} />

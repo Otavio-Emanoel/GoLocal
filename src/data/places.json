@@ -7,8 +7,8 @@
     "tipo": "histórico",
     "gratuito": true,
     "localizacao": {
-      "latitude": -24.3475,
-      "longitude": -47.0017
+      "latitude": -24.271956549791028,
+      "longitude": -46.94257739734345 
     }
   },
   {
@@ -19,8 +19,8 @@
     "tipo": "praia",
     "gratuito": true,
     "localizacao": {
-      "latitude": -24.3657,
-      "longitude": -46.9432
+      "latitude": -24.4404391790886,
+      "longitude": -47.07007841168749
     }
   },
   {
@@ -31,8 +31,8 @@
     "tipo": "cachoeira",
     "gratuito": true,
     "localizacao": {
-      "latitude": -24.3470,
-      "longitude": -47.0030
+      "latitude": -24.3786353042863,
+      "longitude": -47.07863235538776
     }
   },
   {
@@ -43,8 +43,8 @@
     "tipo": "cachoeira",
     "gratuito": true,
     "localizacao": {
-      "latitude": -24.3500,
-      "longitude": -47.0100
+      "latitude": -24.17862104031113,
+      "longitude": -47.02449922598467
     }
   },
   {
@@ -55,8 +55,8 @@
     "tipo": "histórico",
     "gratuito": false,
     "localizacao": {
-      "latitude": -24.3200,
-      "longitude": -47.0000
+      "latitude": -24.35100281060154,
+      "longitude": -46.9994411342772
     }
   },
   {
@@ -67,8 +67,8 @@
     "tipo": "ecológico",
     "gratuito": true,
     "localizacao": {
-      "latitude": -24.4000,
-      "longitude": -47.0000
+      "latitude": -24.35703580269406,
+      "longitude": -47.01371679219006
     }
   },
   {
@@ -79,8 +79,8 @@
     "tipo": "ilha",
     "gratuito": false,
     "localizacao": {
-      "latitude": -24.3700,
-      "longitude": -47.0200
+      "latitude": -24.378491699376138,
+      "longitude": -46.98663579747632
     }
   },
   {
@@ -91,8 +91,8 @@
     "tipo": "mirante",
     "gratuito": true,
     "localizacao": {
-      "latitude": -24.3400,
-      "longitude": -47.0050
+      "latitude": -24.270793825882496,
+      "longitude": -46.95127674880338
     }
   },
   {
@@ -103,8 +103,8 @@
     "tipo": "praia",
     "gratuito": true,
     "localizacao": {
-      "latitude": -24.3200,
-      "longitude": -47.0020
+      "latitude": -24.33307379922417,
+      "longitude": -47.00205533454513
     }
   },
   {
@@ -115,8 +115,8 @@
     "tipo": "praia",
     "gratuito": true,
     "localizacao": {
-      "latitude": -24.3300,
-      "longitude": -47.0150
+      "latitude": -24.428859233371956,
+      "longitude": -47.04730807128803
     }
   },
   {
@@ -127,8 +127,8 @@
     "tipo": "praia",
     "gratuito": true,
     "localizacao": {
-      "latitude": -24.3350,
-      "longitude": -47.0180
+      "latitude": -24.433464578133982,
+      "longitude": -47.054964401346304
     }
   },
   {
@@ -139,8 +139,8 @@
     "tipo": "praia",
     "gratuito": true,
     "localizacao": {
-      "latitude": -24.3160,
-      "longitude": -47.0010
+      "latitude": -24.321424465618023,
+      "longitude": -46.992458403865996
     }
   },
   {
@@ -151,8 +151,8 @@
     "tipo": "praia",
     "gratuito": true,
     "localizacao": {
-      "latitude": -24.3250,
-      "longitude": -47.0100
+      "latitude": -24.34914924395505,
+      "longitude": -47.00052034268684
     }
   }
 ]

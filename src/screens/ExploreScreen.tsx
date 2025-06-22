@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import placesData from '../data/places.json';
@@ -43,6 +44,8 @@ export default function ExploreScreen() {
   const [filter, setFilter] = useState('');
   const [places, setPlaces] = useState<Place[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
+
+  const navigation = useNavigation();
 
   useEffect(() => {
     setPlaces(placesData as Place[]);
@@ -94,7 +97,11 @@ export default function ExploreScreen() {
           <Text style={styles.cardTitle}>{item.nome}</Text>
           <Text style={styles.cardDesc} numberOfLines={2}>{item.descricao}</Text>
           <View style={styles.cardActions}>
-            <TouchableOpacity style={styles.moreBtn}>
+            <TouchableOpacity
+              style={styles.moreBtn}
+              // @ts-ignore
+              onPress={() => navigation.navigate('PlaceDetail', { id: item.id })}
+            >
               <Text style={styles.moreBtnText}>Saiba mais</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => toggleFavorite(item.id)}>
