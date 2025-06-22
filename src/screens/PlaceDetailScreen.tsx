@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, Linking, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, Linking, ActivityIndicator, Modal } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import Swiper from 'react-native-swiper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import placesData from '../data/places.json';
 
 // Mapeamento estático das imagens (adicione todas que usar no JSON)
@@ -47,8 +48,58 @@ export default function PlaceDetailScreen() {
   const { id } = route.params;
   const place = (placesData as Place[]).find(p => p.id === id);
 
-  // Para salvar em "ver mais tarde"
+  // Estado para "ver mais tarde"
   const [saved, setSaved] = useState(false);
+  const [loadingSave, setLoadingSave] = useState(true);
+
+  // Estado do modal
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMsg, setModalMsg] = useState('');
+  const [modalError, setModalError] = useState(false);
+
+  useEffect(() => {
+    checkIfSaved();
+  }, []);
+
+  async function checkIfSaved() {
+    try {
+      const savedList = await AsyncStorage.getItem('seeLater');
+      if (savedList) {
+        const arr = JSON.parse(savedList) as string[];
+        setSaved(arr.includes(id));
+      }
+    } catch (e) {
+      // erro silencioso
+    }
+    setLoadingSave(false);
+  }
+
+  async function handleToggleSave() {
+    setLoadingSave(true);
+    try {
+      const savedList = await AsyncStorage.getItem('seeLater');
+      let arr: string[] = savedList ? JSON.parse(savedList) : [];
+      if (saved) {
+        arr = arr.filter(pid => pid !== id);
+        setSaved(false);
+        setModalMsg('Removido de "Ver mais tarde"');
+        setModalError(false);
+        setModalVisible(true);
+      } else {
+        arr.push(id);
+        setSaved(true);
+        setModalMsg('Salvo em "Ver mais tarde"!');
+        setModalError(false);
+        setModalVisible(true);
+      }
+      await AsyncStorage.setItem('seeLater', JSON.stringify(arr));
+    } catch (e) {
+      setModalMsg('Erro ao salvar');
+      setModalError(true);
+      setModalVisible(true);
+    }
+    setLoadingSave(false);
+  }
 
   if (!place) {
     return (
@@ -71,18 +122,42 @@ export default function PlaceDetailScreen() {
       const url = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
       Linking.openURL(url);
     } else {
-      Alert.alert('Localização não disponível');
+      setModalMsg('Localização não disponível');
+      setModalError(true);
+      setModalVisible(true);
     }
-  };
-
-  const handleSave = () => {
-    setSaved(true);
-    Alert.alert('Salvo em "Ver mais tarde"!');
-    // Aqui você pode salvar em AsyncStorage ou backend
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      {/* Modal de feedback */}
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalBox, modalError && styles.modalBoxError]}>
+            <MaterialCommunityIcons
+              name={modalError ? "alert-circle-outline" : "check-circle-outline"}
+              size={40}
+              color={modalError ? "#d32f2f" : "#2e7d32"}
+              style={{ marginBottom: 8 }}
+            />
+            <Text style={[styles.modalMsg, modalError && styles.modalMsgError]}>
+              {modalMsg}
+            </Text>
+            <TouchableOpacity
+              style={styles.modalBtn}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.modalBtnText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       <View style={styles.carouselContainer}>
         <Swiper
           style={styles.swiper}
@@ -146,7 +221,11 @@ export default function PlaceDetailScreen() {
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.actionBtn, styles.actionBtnSecondary]}
-            onPress={() => Alert.alert('Funcionalidade em breve', 'Como chegar será implementado em breve!')}
+            onPress={() => {
+              setModalMsg('Como chegar será implementado em breve!');
+              setModalError(false);
+              setModalVisible(true);
+            }}
           >
             <MaterialCommunityIcons name="navigation" size={22} color="#2a4d69" />
             <Text style={[styles.actionBtnText, styles.actionBtnTextSecondary]}>Como chegar</Text>
@@ -157,21 +236,25 @@ export default function PlaceDetailScreen() {
             style={[
               styles.actionBtn,
               saved ? styles.actionBtnSaved : styles.actionBtnTertiary,
-              { flex: 1 }
+              { flex: 1, opacity: loadingSave ? 0.6 : 1 }
             ]}
-            onPress={handleSave}
-            disabled={saved}
+            onPress={handleToggleSave}
+            disabled={loadingSave}
           >
-            <MaterialCommunityIcons
-              name={saved ? "bookmark-check" : "bookmark-plus-outline"}
-              size={22}
-              color={saved ? "#fff" : "#f9a825"}
-            />
+            {loadingSave ? (
+              <ActivityIndicator color={saved ? "#fff" : "#f9a825"} size={20} />
+            ) : (
+              <MaterialCommunityIcons
+                name={saved ? "bookmark-check" : "bookmark-plus-outline"}
+                size={22}
+                color={saved ? "#fff" : "#f9a825"}
+              />
+            )}
             <Text style={[
               styles.actionBtnText,
               saved ? {} : styles.actionBtnTextTertiary
             ]}>
-              {saved ? "Salvo!" : "Ver mais tarde"}
+              {saved ? "Salvo! (remover)" : "Ver mais tarde"}
             </Text>
           </TouchableOpacity>
         </View>
@@ -243,7 +326,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#2a4d69',
   },
-  // NOVO GRID DE BOTÕES
   actionsGrid: {
     width: '100%',
     marginBottom: 18,
@@ -315,5 +397,48 @@ const styles = StyleSheet.create({
   sectionText: {
     fontSize: 15,
     color: '#22343c',
+  },
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalBox: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 28,
+    alignItems: 'center',
+    minWidth: 220,
+    maxWidth: 320,
+    elevation: 4,
+  },
+  modalBoxError: {
+    borderColor: '#d32f2f',
+    borderWidth: 2,
+  },
+  modalMsg: {
+    fontSize: 16,
+    color: '#2e7d32',
+    textAlign: 'center',
+    marginBottom: 12,
+    fontWeight: 'bold',
+  },
+  modalMsgError: {
+    color: '#d32f2f',
+  },
+  modalBtn: {
+    backgroundColor: '#2a4d69',
+    borderRadius: 8,
+    paddingHorizontal: 24,
+    paddingVertical: 8,
+    marginTop: 4,
+  },
+  modalBtnText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 15,
+    letterSpacing: 0.5,
   },
 });
