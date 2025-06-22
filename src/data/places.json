@@ -2,7 +2,7 @@
   {
     "id": "ruinas-abarebebe",
     "nome": "Ruinas do Abarebebê",
-    "imagem": "lugares/ruinas-abarebebe.jpeg",
+    "imagem": "ruinas-abarebebe.jpeg",
     "descricao": "Importante sítio histórico de Peruíbe, as ruínas da Igreja do Abarebebê datam do século XVI e são um dos principais marcos da colonização da região.",
     "tipo": "histórico",
     "gratuito": true,
@@ -14,7 +14,7 @@
   {
     "id": "barra-do-una",
     "nome": "Barra do Una",
-    "imagem": "lugares/barra-do-una.jpeg",
+    "imagem": "barra-do-una.jpeg",
     "descricao": "Praia paradisíaca com encontro do rio Una com o mar, cercada por Mata Atlântica preservada.",
     "tipo": "praia",
     "gratuito": true,
@@ -26,7 +26,7 @@
   {
     "id": "cachoeira-do-paraiso",
     "nome": "Cachoeira do Paraíso",
-    "imagem": "lugares/cachoeira-do-paraiso.jpeg",
+    "imagem": "cachoeira-do-paraiso.jpeg",
     "descricao": "Uma das cachoeiras mais visitadas de Peruíbe, com fácil acesso e ótima para banho.",
     "tipo": "cachoeira",
     "gratuito": true,
@@ -38,7 +38,7 @@
   {
     "id": "cachoeira-rio-do-ouro",
     "nome": "Cachoeira Rio do Ouro",
-    "imagem": "lugares/cachoeira-rio-do-ouro.jpeg",
+    "imagem": "cachoeira-rio-do-ouro.jpeg",
     "descricao": "Cachoeira em meio à natureza, ideal para quem busca tranquilidade e contato com o verde.",
     "tipo": "cachoeira",
     "gratuito": true,
@@ -50,7 +50,7 @@
   {
     "id": "castelinho",
     "nome": "Castelinho",
-    "imagem": "lugares/castelinho.jpeg",
+    "imagem": "castelinho.jpeg",
     "descricao": "Construção histórica que remete ao passado da cidade, com arquitetura peculiar e vista privilegiada.",
     "tipo": "histórico",
     "gratuito": false,
@@ -62,7 +62,7 @@
   {
     "id": "estacao-ecologica-jureia",
     "nome": "Estação Ecológica Juréia-Itatins",
-    "imagem": "lugares/estacao-ecologica-jureia.jpeg",
+    "imagem": "estacao-ecologica-jureia.jpeg",
     "descricao": "Área de proteção ambiental com trilhas, cachoeiras e rica biodiversidade da Mata Atlântica.",
     "tipo": "ecológico",
     "gratuito": true,
@@ -74,7 +74,7 @@
   {
     "id": "ilha-guarau",
     "nome": "Ilha do Guaraú",
-    "imagem": "lugares/ilha-guarau.jpeg",
+    "imagem": "ilha-guarau.jpeg",
     "descricao": "Ilha próxima à praia do Guaraú, ideal para passeios de barco e contato com a natureza.",
     "tipo": "ilha",
     "gratuito": false,
@@ -86,7 +86,7 @@
   {
     "id": "mirante-da-torre",
     "nome": "Mirante da Torre",
-    "imagem": "lugares/mirante-da-torre.jpeg",
+    "imagem": "mirante-da-torre.jpeg",
     "descricao": "Mirante com vista panorâmica de Peruíbe e do litoral, ótimo para fotos e contemplação.",
     "tipo": "mirante",
     "gratuito": true,
@@ -98,7 +98,7 @@
   {
     "id": "praia-costao",
     "nome": "Praia do Costão",
-    "imagem": "lugares/praia-costao.jpeg",
+    "imagem": "praia-costao.jpeg",
     "descricao": "Praia com formações rochosas e trilhas, muito procurada para caminhadas e belas paisagens.",
     "tipo": "praia",
     "gratuito": true,
@@ -110,7 +110,7 @@
   {
     "id": "praia-desertinha",
     "nome": "Praia Desertinha",
-    "imagem": "lugares/praia-desertinha.jpeg",
+    "imagem": "praia-desertinha.jpeg",
     "descricao": "Praia isolada e tranquila, ideal para quem busca sossego e contato com a natureza.",
     "tipo": "praia",
     "gratuito": true,
@@ -122,7 +122,7 @@
   {
     "id": "praia-do-cambore",
     "nome": "Praia do Camboré",
-    "imagem": "lugares/praia-do-cambore.jpeg",
+    "imagem": "praia-do-cambore.jpeg",
     "descricao": "Praia pouco movimentada, ótima para relaxar e curtir a paisagem natural.",
     "tipo": "praia",
     "gratuito": true,
@@ -134,7 +134,7 @@
   {
     "id": "praia-do-centro",
     "nome": "Praia do Centro",
-    "imagem": "lugares/praia-do-centro.jpeg",
+    "imagem": "praia-do-centro.jpeg",
     "descricao": "Praia urbana, com fácil acesso, quiosques e infraestrutura para toda a família.",
     "tipo": "praia",
     "gratuito": true,
@@ -146,7 +146,7 @@
   {
     "id": "prainha",
     "nome": "Praínha",
-    "imagem": "lugares/prainha.jpeg",
+    "imagem": "prainha.jpeg",
     "descricao": "Pequena praia escondida entre morros, com águas calmas e ambiente familiar.",
     "tipo": "praia",
     "gratuito": true,
