@@ -48,6 +48,16 @@ export default function BottomTabNavigator() {
           ),
           title: 'Explorar',
         }}
+        listeners={({ navigation }) => ({
+          tabPress: e => {
+            // Previne o comportamento padrão
+            e.preventDefault();
+            // Reseta a pilha do Explore para a tela principal
+            navigation.navigate('Explore', {
+              screen: 'ExploreMain',
+            });
+          },
+        })}
       />
       <Tab.Screen
         name="Map"

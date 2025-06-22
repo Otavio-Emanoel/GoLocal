@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, TextInput, Modal, ActivityIndicator } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import placesData from '../data/places.json';
@@ -65,6 +65,14 @@ export default function ExploreScreen() {
     loadFavorites();
     loadSeeLater();
   }, []);
+
+  // Atualiza favoritos e ver mais tarde ao voltar para a tela
+  useFocusEffect(
+    useCallback(() => {
+      loadFavorites();
+      loadSeeLater();
+    }, [])
+  );
 
   async function loadFavorites() {
     const favs = await AsyncStorage.getItem('favorites');
@@ -172,13 +180,6 @@ export default function ExploreScreen() {
                   color={isSeeLater ? "#f9a825" : "#2a4d69"}
                 />
               )}
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => toggleFavorite(item.id)}>
-              <MaterialCommunityIcons
-                name={favorites.includes(item.id) ? 'bookmark' : 'bookmark-outline'}
-                size={28}
-                color="#2a4d69"
-              />
             </TouchableOpacity>
           </View>
           {isSeeLater && (
@@ -385,7 +386,7 @@ const styles = StyleSheet.create({
   cardActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
     gap: 8,
     marginBottom: 4,
   },
