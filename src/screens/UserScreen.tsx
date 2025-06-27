@@ -9,6 +9,7 @@ import * as Clipboard from 'expo-clipboard';
 import { useTheme } from '../context/ThemeContext';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
+import { useNavigation } from '@react-navigation/native';
 
 const PIX_KEY = '22546acc-5080-45a2-9c34-67f61bdea85f';
 
@@ -26,10 +27,14 @@ const images: Record<string, any> = {
   "praia-do-cambore.jpeg": require('../assets/places/praia-do-cambore.jpeg'),
   "praia-do-centro.jpeg": require('../assets/places/praia-do-centro.jpeg'),
   "prainha.jpeg": require('../assets/places/prainha.jpeg'),
+  "parque-turistico.png": require('../assets/places/parque-turistico.png'),
+
 };
 
 export default function UserScreen() {
   const { darkMode, setDarkMode, theme } = useTheme();
+
+  const navigation = useNavigation();
 
   const [name, setName] = useState<string>('Usuário');
   const [editingName, setEditingName] = useState(false);
@@ -98,10 +103,18 @@ export default function UserScreen() {
     const place = (placesData as any[]).find(p => p.id === item);
     if (!place) return null;
     return (
-      <View style={[styles.seeLaterItem, { backgroundColor: theme.seeLaterBg }]}>
+      <TouchableOpacity
+        style={[styles.seeLaterItem, { backgroundColor: theme.seeLaterBg }]}
+        // @ts-ignore
+        onPress={() => navigation.navigate('Explore', {
+          screen: 'PlaceDetail',
+          params: { id: place.id }
+        })}
+        activeOpacity={0.8}
+      >
         <Image source={images[place.imagem]} style={styles.seeLaterImg} />
         <Text style={[styles.seeLaterName, { color: theme.text }]}>{place.nome}</Text>
-      </View>
+      </TouchableOpacity>
     );
   }
 

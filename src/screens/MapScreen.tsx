@@ -32,6 +32,7 @@ const images: Record<string, any> = {
   "praia-do-cambore.jpeg": require('../assets/places/praia-do-cambore.jpeg'),
   "praia-do-centro.jpeg": require('../assets/places/praia-do-centro.jpeg'),
   "prainha.jpeg": require('../assets/places/prainha.jpeg'),
+  "parque-turistico.png": require('../assets/places/parque-turistico.png'),
 };
 
 function getInitialRegion() {

@@ -9,13 +9,13 @@ import { useTheme } from '../context/ThemeContext';
 import Markdown from 'react-native-markdown-display';
 
 // Gemini API
-const GEMINI_API_KEY = 'SUA_CHAVE_GEMINI_AQUI'; // Troque pela sua chave Gemini
+const GEMINI_API_KEY = 'SUA_CHAVE_DA_API'; // Troque pela sua chave Gemini
 
 async function askGemini(question: string, context: string) {
   const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + GEMINI_API_KEY;
   const body = {
     contents: [
-      { parts: [{ text: `Contexto: ${context}\nPergunta: ${question}` }] }
+      { parts: [{ text: context }] }
     ]
   };
   const response = await fetch(url, {
@@ -42,6 +42,7 @@ const images: Record<string, any> = {
   "praia-do-cambore.jpeg": require('../assets/places/praia-do-cambore.jpeg'),
   "praia-do-centro.jpeg": require('../assets/places/praia-do-centro.jpeg'),
   "prainha.jpeg": require('../assets/places/prainha.jpeg'),
+  "parque-turistico.png": require('../assets/places/parque-turistico.png'),
 };
 
 type RootStackParamList = {
@@ -61,6 +62,7 @@ type Place = {
   dificuldade?: string;
   dicas?: string;
   curiosidades?: string;
+  keywords?: string;
   localizacao?: { latitude: number; longitude: number };
 };
 
@@ -156,7 +158,29 @@ export default function PlaceDetailScreen() {
     setGeminiLoading(true);
     setGeminiAnswer('');
     try {
-      const context = `${place.nome}\n${place.descricao}\nPeruibe-SP\n${place.curiosidades || ''}`;
+      const context = `
+        Você é um guia turístico virtual especializado em Peruíbe-SP.
+        Abaixo estão informações sobre um ponto turístico da cidade.
+        Responda à pergunta do usuário usando essas informações.
+        Se não encontrar a resposta exata, utilize seu conhecimento geral sobre turismo, história e cultura local para ajudar o usuário.
+
+        Caso queira, voce pode consultar também o site de Peruíbe https://www.peruibe.sp.gov.br/
+
+        --- Dados do ponto turístico ---
+        Nome: ${place.nome}
+        Tipo: ${place.tipo}
+        Descrição: ${place.descricao}
+        ${place.horario ? `Horário de funcionamento: ${place.horario}` : ''}
+        ${place.taxa ? `Taxa de entrada: ${place.taxa}` : ''}
+        ${place.dificuldade ? `Dificuldade: ${place.dificuldade}` : ''}
+        ${place.dicas ? `Dicas: ${place.dicas}` : ''}
+        ${place.keywords ? `Palavras chave: ${place.keywords}` : ''}
+        ${place.curiosidades ? `Curiosidades: ${place.curiosidades}` : ''}
+        Cidade: Peruíbe-SP
+        -------------------------------
+
+        Pergunta do usuário: ${geminiQuestion}
+        `.trim();
       const answer = await askGemini(geminiQuestion, context);
       setGeminiAnswer(answer);
     } catch (e) {
@@ -164,6 +188,18 @@ export default function PlaceDetailScreen() {
     }
     setGeminiLoading(false);
   }
+
+  const openDirections = () => {
+    if (place.localizacao) {
+      const { latitude, longitude } = place.localizacao;
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}&travelmode=driving`;
+      Linking.openURL(url);
+    } else {
+      setModalMsg('Localização não disponível');
+      setModalError(true);
+      setModalVisible(true);
+    }
+  };
 
   // Remove *** e outros artefatos do Gemini e deixa Markdown mais limpo
   function formatGeminiAnswer(answer: string) {
@@ -227,8 +263,14 @@ export default function PlaceDetailScreen() {
           styles.modalOverlay,
           darkMode && { backgroundColor: 'rgba(0,0,0,0.7)' }
         ]}>
-          <View style={[styles.geminiModalBox, { backgroundColor: theme.card }]}>
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>Pergunte algo sobre este local</Text>
+          <View style={[
+            styles.geminiModalBox,
+            { backgroundColor: theme.card }
+          ]}>
+            <TouchableOpacity style={styles.closeBtnGemini} onPress={() => setGeminiModal(false)}>
+              <MaterialCommunityIcons name="close" size={28} color={theme.text} />
+            </TouchableOpacity>
+            <Text style={[styles.sectionTitle, { color: theme.text, marginBottom: 14 }]}>Pergunte algo sobre este local</Text>
             <TextInput
               style={[
                 styles.geminiInput,
@@ -247,7 +289,7 @@ export default function PlaceDetailScreen() {
               returnKeyType="send"
             />
             <TouchableOpacity
-              style={[styles.geminiBtn, { backgroundColor: theme.btn }]}
+              style={[styles.geminiBtn, { backgroundColor: theme.btn, marginBottom: 10 }]}
               onPress={handleAskGemini}
               disabled={geminiLoading}
             >
@@ -279,9 +321,6 @@ export default function PlaceDetailScreen() {
                 </View>
               ) : null}
             </ScrollView>
-            <TouchableOpacity style={styles.closeBtn} onPress={() => setGeminiModal(false)}>
-              <MaterialCommunityIcons name="close" size={28} color={theme.text} />
-            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -329,7 +368,7 @@ export default function PlaceDetailScreen() {
         {place.dificuldade && (
           <Text style={[styles.infoLine, { color: theme.text }]}>
             <MaterialCommunityIcons name="walk" size={18} color={theme.btn} />{' '}
-            <Text style={[styles.infoLabel, { color: theme.text }]}>Dificuldade:</Text> {place.dificuldade}
+            <Text style={[styles.infoLabel, { color: theme.text }]}>Dificuldade de acesso:</Text> {place.dificuldade}
           </Text>
         )}
         {place.dicas && (
@@ -353,6 +392,16 @@ export default function PlaceDetailScreen() {
           >
             <MaterialCommunityIcons name="robot" size={22} color={theme.btn} />
             <Text style={[styles.actionBtnText, { color: theme.btn }]}>Saber mais</Text>
+          </TouchableOpacity>
+        </View>
+        {/* Botão Como chegar */}
+        <View style={styles.actionsRow}>
+          <TouchableOpacity
+            style={[styles.actionBtn, { backgroundColor: theme.card, borderWidth: 2, borderColor: theme.btn }]}
+            onPress={openDirections}
+          >
+            <MaterialCommunityIcons name="car" size={22} color={theme.btn} />
+            <Text style={[styles.actionBtnText, { color: theme.btn }]}>Como chegar</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.actionsRow}>
@@ -532,22 +581,39 @@ const styles = StyleSheet.create({
   },
   // Gemini modal
   geminiModalBox: {
-    borderRadius: 16,
-    padding: 24,
+    borderRadius: 18,
+    padding: 22,
     alignItems: 'center',
-    minWidth: 260,
-    maxWidth: 340,
-    elevation: 4,
+    width: '92%',
+    maxWidth: 380,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    borderWidth: 1,
+    borderColor: '#2a4d6922',
     position: 'relative',
   },
   geminiInput: {
     width: '100%',
+    maxWidth: 340,
     borderRadius: 8,
-    padding: 10,
+    padding: 12,
     fontSize: 15,
     borderWidth: 1.5,
-    marginBottom: 10,
+    marginBottom: 12,
     marginTop: 8,
+    alignSelf: 'center',
+  },
+  closeBtnGemini: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 10,
+    backgroundColor: 'transparent',
+    borderRadius: 16,
+    padding: 2,
   },
   geminiBtn: {
     flexDirection: 'row',
@@ -570,13 +636,5 @@ const styles = StyleSheet.create({
   },
   geminiAnswer: {
     fontSize: 15,
-  },
-  closeBtn: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    backgroundColor: 'transparent',
-    borderRadius: 16,
-    padding: 2,
   },
 });

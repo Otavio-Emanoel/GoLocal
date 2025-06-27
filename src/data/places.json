@@ -6,6 +6,9 @@
     "descricao": "Importante sítio histórico de Peruíbe, as ruínas da Igreja do Abarebebê datam do século XVI e são um dos principais marcos da colonização da região.",
     "tipo": "histórico",
     "gratuito": true,
+    "dificuldade": "Fácil",
+    "curiosidades": "O nome Abarebebê significa 'padre voador' em tupi-guarani, uma referência ao padre José de Anchieta.",
+    "keywords": "ruínas, história, igreja, Anchieta, colonização, patrimônio, cultura",
     "localizacao": {
       "latitude": -24.271956549791028,
       "longitude": -46.94257739734345 
@@ -18,6 +21,9 @@
     "descricao": "Praia paradisíaca com encontro do rio Una com o mar, cercada por Mata Atlântica preservada.",
     "tipo": "praia",
     "gratuito": true,
+    "dificuldade": "Fácil",
+    "curiosidades": "É possível ver golfinhos e tartarugas na foz do rio Una em determinadas épocas do ano.",
+    "keywords": "praia, rio, natureza, Mata Atlântica, paisagem, golfinhos, tartarugas",
     "localizacao": {
       "latitude": -24.4404391790886,
       "longitude": -47.07007841168749
@@ -30,6 +36,9 @@
     "descricao": "Uma das cachoeiras mais visitadas de Peruíbe, com fácil acesso e ótima para banho.",
     "tipo": "cachoeira",
     "gratuito": true,
+    "dificuldade": "Fácil",
+    "curiosidades": "A água é cristalina e a queda d'água forma uma piscina natural perfeita para famílias.",
+    "keywords": "cachoeira, banho, natureza, trilha, família, piscina natural",
     "localizacao": {
       "latitude": -24.3786353042863,
       "longitude": -47.07863235538776
@@ -42,6 +51,9 @@
     "descricao": "Cachoeira em meio à natureza, ideal para quem busca tranquilidade e contato com o verde.",
     "tipo": "cachoeira",
     "gratuito": true,
+    "dificuldade": "Média",
+    "curiosidades": "O nome vem do brilho dourado das pedras no fundo do rio durante o pôr do sol.",
+    "keywords": "cachoeira, natureza, tranquilidade, pedras, rio, verde",
     "localizacao": {
       "latitude": -24.17862104031113,
       "longitude": -47.02449922598467
@@ -54,6 +66,9 @@
     "descricao": "Construção histórica que remete ao passado da cidade, com arquitetura peculiar e vista privilegiada.",
     "tipo": "histórico",
     "gratuito": false,
+    "dificuldade": "Fácil",
+    "curiosidades": "O Castelinho já serviu como residência e ponto de observação durante o século passado.",
+    "keywords": "história, arquitetura, castelo, vista, patrimônio, observação",
     "localizacao": {
       "latitude": -24.35100281060154,
       "longitude": -46.9994411342772
@@ -66,6 +81,9 @@
     "descricao": "Área de proteção ambiental com trilhas, cachoeiras e rica biodiversidade da Mata Atlântica.",
     "tipo": "ecológico",
     "gratuito": true,
+    "dificuldade": "Média",
+    "curiosidades": "A Juréia-Itatins abriga espécies raras de fauna e flora, sendo um dos principais refúgios da Mata Atlântica.",
+    "keywords": "ecologia, trilha, biodiversidade, Mata Atlântica, proteção, fauna, flora",
     "localizacao": {
       "latitude": -24.35703580269406,
       "longitude": -47.01371679219006
@@ -78,6 +96,9 @@
     "descricao": "Ilha próxima à praia do Guaraú, ideal para passeios de barco e contato com a natureza.",
     "tipo": "ilha",
     "gratuito": false,
+    "dificuldade": "Média",
+    "curiosidades": "A ilha é pouco habitada e possui praias desertas e trilhas selvagens.",
+    "keywords": "ilha, barco, natureza, trilha, praia deserta, aventura",
     "localizacao": {
       "latitude": -24.378491699376138,
       "longitude": -46.98663579747632
@@ -90,6 +111,9 @@
     "descricao": "Mirante com vista panorâmica de Peruíbe e do litoral, ótimo para fotos e contemplação.",
     "tipo": "mirante",
     "gratuito": true,
+    "dificuldade": "Fácil",
+    "curiosidades": "Em dias claros, é possível avistar várias praias e até a Ilha do Guaraú.",
+    "keywords": "mirante, vista, fotos, litoral, contemplação, paisagem",
     "localizacao": {
       "latitude": -24.270793825882496,
       "longitude": -46.95127674880338
@@ -102,6 +126,9 @@
     "descricao": "Praia com formações rochosas e trilhas, muito procurada para caminhadas e belas paisagens.",
     "tipo": "praia",
     "gratuito": true,
+    "dificuldade": "Média",
+    "curiosidades": "O costão rochoso é habitat de diversas espécies marinhas e ótimo para pesca.",
+    "keywords": "praia, costão, rochas, trilha, caminhada, pesca, paisagem",
     "localizacao": {
       "latitude": -24.33307379922417,
       "longitude": -47.00205533454513
@@ -114,6 +141,9 @@
     "descricao": "Praia isolada e tranquila, ideal para quem busca sossego e contato com a natureza.",
     "tipo": "praia",
     "gratuito": true,
+    "dificuldade": "Difícil",
+    "curiosidades": "O acesso é feito por trilha ou barco, o que garante a preservação e o isolamento do local.",
+    "keywords": "praia, isolada, trilha, sossego, natureza, barco, preservação",
     "localizacao": {
       "latitude": -24.428859233371956,
       "longitude": -47.04730807128803
@@ -126,6 +156,9 @@
     "descricao": "Praia pouco movimentada, ótima para relaxar e curtir a paisagem natural.",
     "tipo": "praia",
     "gratuito": true,
+    "dificuldade": "Fácil",
+    "curiosidades": "O nome Camboré vem de uma planta típica da região encontrada nas dunas próximas.",
+    "keywords": "praia, relaxar, natureza, dunas, Camboré, tranquilidade",
     "localizacao": {
       "latitude": -24.433464578133982,
       "longitude": -47.054964401346304
@@ -138,6 +171,9 @@
     "descricao": "Praia urbana, com fácil acesso, quiosques e infraestrutura para toda a família.",
     "tipo": "praia",
     "gratuito": true,
+    "dificuldade": "Fácil",
+    "curiosidades": "É a praia mais movimentada da cidade, palco de eventos e shows durante o verão.",
+    "keywords": "praia, centro, urbana, quiosques, família, eventos, shows",
     "localizacao": {
       "latitude": -24.321424465618023,
       "longitude": -46.992458403865996
@@ -150,9 +186,27 @@
     "descricao": "Pequena praia escondida entre morros, com águas calmas e ambiente familiar.",
     "tipo": "praia",
     "gratuito": true,
+    "dificuldade": "Fácil",
+    "curiosidades": "Por ser protegida por morros, suas águas são sempre calmas, ideais para crianças.",
+    "keywords": "praia, pequena, morros, águas calmas, família, crianças",
     "localizacao": {
       "latitude": -24.34914924395505,
       "longitude": -47.00052034268684
+    }
+  },
+  {
+    "id": "parque-turistico",
+    "nome": "Parque Turístico",
+    "imagem": "parque-turistico.png",
+    "descricao": "Parque com diversas atividades de lazer, trilhas e áreas para picnic, ideal para famílias.",
+    "tipo": "parque",
+    "gratuito": true,
+    "dificuldade": "Fácil",
+    "curiosidades": "O parque recebe eventos culturais e esportivos ao longo do ano.",
+    "keywords": "parque, lazer, trilha, picnic, família, eventos, esportes",
+    "localizacao": {
+      "latitude": -24.328882362667667,
+      "longitude": -46.99988770366462 
     }
   }
 ]
